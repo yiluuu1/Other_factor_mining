@@ -1,0 +1,4 @@
+Year,Maximum Drawdown,win_ratio,win_loss_ratio,avg_hold_days,Annualized Return,Annualized Volatility,Sharpe Ratio
+2019,-0.033,1.0,No loss,43.333,0.234,0.123,1.902
+2020,-0.129,0.571,2.0369534897609602,30.429,0.204,0.178,1.144
+2021,-0.174,1.0,No loss,28.0,0.649,0.309,2.101

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/corr_results/铝_corr_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/corr_results/镍_corr_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/data.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/PTA_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/PVC_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/不锈钢_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/乙二醇_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/原油_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/棉花_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/棕榈油_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/橡胶_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/沥青_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/热轧卷板_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/焦炭_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/焦煤_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/燃油_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/玉米_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/玻璃_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/生猪_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/甲醇_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/白糖_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/纯碱_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/纸浆_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/聚丙烯_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/聚乙烯_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/苯乙烯_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/菜油_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/菜粕_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/螺纹钢_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/豆油_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/豆粕_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/铁矿石_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/铜_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/铝_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/锌_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/ic_results/镍_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/sample_data.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/spot_factor.py" charset="UTF-8" />
+  </component>
+</project>

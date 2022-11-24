@@ -1,0 +1,1 @@
+tan(sqrt(inv(inv(X0))))
