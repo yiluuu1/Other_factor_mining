@@ -99,7 +99,10 @@ def _evolve(n_programs, parents, X, y, seeds, params):
 
         indices, not_indices = program.get_all_indices(n_samples, max_samples, random_state)
 
-        program.fitness_ = program.fitness(X, y)
+        if not program.unit_rationality(X):
+            program.fitness_ = -1
+        else:
+            program.fitness_ = program.fitness(X, y)
         if max_samples < n_samples:
             # Calculate OOB fitness
             program.oob_fitness_ = program.fitness(X.iloc[not_indices,:], y.iloc[not_indices,:])

@@ -433,6 +433,46 @@ class _Program(object):
 
         return program, list(mutate)
 
+    def unit_rationality(self, X, unit_table):
+
+        def check(function, terminals):
+            if function in ('cs_rank', 'ts_rank', 'argmax', 'argmin', 'ts_corr'):
+                return None
+            if function in ('add', 'sub'):
+                if terminals[0] == terminals[1]:
+                    return terminals[0]
+                else:
+                    return False
+            if function == 'mul':
+                return terminals[0] + terminals[1]
+            elif function == 'div':
+                return terminals[0] - terminals[1]
+
+        node = self.program[0]
+        if isinstance(node, (int, float)):
+            return True
+
+        apply_stack = []
+
+        for node in self.program:
+            if isinstance(node, _Function):
+                apply_stack.append([node])
+            else:
+                apply_stack[-1].append(node)
+
+            while len(apply_stack[-1]) == apply_stack[-1][0].arity + 1:
+                # Apply functions that have sufficient arguments
+                function = apply_stack[-1][0].name
+                terminals = ['nothing' if isinstance(t, float)
+                             else unit_table[X.columns[t]] if isinstance(t, int) else t for t in apply_stack[-1][1:]]
+
+                intermediate_result = check(function, terminals)
+                if len(apply_stack) != 1:
+                    apply_stack.pop()
+                    apply_stack[-1].append(intermediate_result)
+                else:
+                    return intermediate_result
+
     depth_ = property(_depth)
     length_ = property(_length)
     indices_ = property(_indices)
