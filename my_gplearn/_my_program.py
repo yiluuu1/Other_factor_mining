@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.utils.random import sample_without_replacement
 from .my_functions import _Function
-from .my_utils import check_random_state, preprocess
+from .my_utils import check_random_state, preprocess, check_unit
 
 
 class _Program(object):
@@ -12,7 +12,7 @@ class _Program(object):
     """
 
     def __init__(self, function_set, arities, init_depth, init_method, n_features, const_range, metric, p_point_replace,
-                 parsimony_coefficient, random_state, transformer=None, feature_names=None, program=None):
+                 parsimony_coefficient, random_state, unit_dict, transformer=None, feature_names=None, program=None):
         self.function_set = function_set
         self.arities = arities
         self.init_depth = (init_depth[0], init_depth[1] + 1)
@@ -24,6 +24,7 @@ class _Program(object):
         self.parsimony_coefficient = parsimony_coefficient
         self.transformer = transformer
         self.feature_names = feature_names
+        self.unit_dict = unit_dict
         self.program = program
 
         if self.program is not None:
@@ -433,21 +434,9 @@ class _Program(object):
 
         return program, list(mutate)
 
-    def unit_rationality(self, X, unit_table):
-
-        def check(function, terminals):
-            if function in ('cs_rank', 'ts_rank', 'argmax', 'argmin', 'ts_corr'):
-                return None
-            if function in ('add', 'sub'):
-                if terminals[0] == terminals[1]:
-                    return terminals[0]
-                else:
-                    return False
-            if function == 'mul':
-                return terminals[0] + terminals[1]
-            elif function == 'div':
-                return terminals[0] - terminals[1]
-
+    def unit_rationality(self, X):
+        rationality = ['weight', 'money', 'time', 'area', 'volume',
+                       'money/weight', 'weight/time', 'weight/area']
         node = self.program[0]
         if isinstance(node, (int, float)):
             return True
@@ -463,15 +452,16 @@ class _Program(object):
             while len(apply_stack[-1]) == apply_stack[-1][0].arity + 1:
                 # Apply functions that have sufficient arguments
                 function = apply_stack[-1][0].name
-                terminals = ['nothing' if isinstance(t, float)
-                             else unit_table[X.columns[t]] if isinstance(t, int) else t for t in apply_stack[-1][1:]]
+                arg = apply_stack[-1][0].extra_param
+                terminals = [None if isinstance(t, float) else self.unit_dict[
+                    X.columns[t]] if isinstance(t, int) else t for t in apply_stack[-1][1:]]
 
-                intermediate_result = check(function, terminals)
+                intermediate_result = check_unit(function, terminals, arg)
                 if len(apply_stack) != 1:
                     apply_stack.pop()
                     apply_stack[-1].append(intermediate_result)
                 else:
-                    return intermediate_result
+                    return intermediate_result in rationality
 
     depth_ = property(_depth)
     length_ = property(_length)

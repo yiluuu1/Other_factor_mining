@@ -7,17 +7,19 @@ import itertools
 from abc import ABCMeta, abstractmethod
 from time import time
 from warnings import warn
+
 import numpy as np
+from joblib import Parallel, delayed
 from scipy.stats import rankdata
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin, TransformerMixin, ClassifierMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import check_array
+
 from ._my_program import _Program
-from .my_fitness import _fitness_map, _Fitness
+from .my_fitness import _fitness_map
 from .my_functions import _function_map, _Function, sig1 as sigmoid
-from .my_utils import check_random_state, _partition_estimators
-from joblib import Parallel, delayed
+from .my_utils import check_random_state, _partition_estimators, unit_transform
 
 __all__ = ['SymbolicRegressor', 'SymbolicClassifier', 'SymbolicTransformer']
 
@@ -41,6 +43,7 @@ def _evolve(n_programs, parents, X, y, seeds, params):
     p_point_replace = params['p_point_replace']
     max_samples = params['max_samples']
     feature_names = params['feature_names']
+    unit_dict = params['unit_dict']
     max_samples = int(max_samples * n_samples)
 
     def _tournament():
@@ -92,8 +95,8 @@ def _evolve(n_programs, parents, X, y, seeds, params):
 
         program = _Program(function_set=function_set, arities=arities, init_depth=init_depth, init_method=init_method,
                            n_features=n_features, metric=metric, transformer=transformer, const_range=const_range,
-                           p_point_replace=p_point_replace, parsimony_coefficient=parsimony_coefficient,
-                           feature_names=feature_names, random_state=random_state, program=program)
+                           p_point_replace=p_point_replace, parsimony_coefficient=parsimony_coefficient,program=program,
+                           feature_names=feature_names, unit_dict=unit_dict, random_state=random_state)
 
         program.parents = genome
 
@@ -121,7 +124,7 @@ class BaseSymbolic(BaseEstimator, metaclass=ABCMeta):
     @abstractmethod
     def __init__(self, *, population_size=1000, hall_of_fame=None, n_components=None, generations=20,
                  tournament_size=20, stopping_criteria=0.0, const_range=(-1., 1.), init_depth=(2, 6),
-                 init_method='half and half', function_set, transformer=None,
+                 init_method='half and half', function_set, transformer=None, unit_dict,
                  metric='mean absolute error', parsimony_coefficient=0.001, p_crossover=0.9, p_subtree_mutation=0.01,
                  p_hoist_mutation=0.01, p_point_mutation=0.01, p_point_replace=0.05, max_samples=1.0, class_weight=None,
                  feature_names=None, warm_start=False, low_memory=False, n_jobs=1, verbose=0, random_state=None):
@@ -146,6 +149,7 @@ class BaseSymbolic(BaseEstimator, metaclass=ABCMeta):
         self.max_samples = max_samples
         self.class_weight = class_weight
         self.feature_names = feature_names
+        self.unit_dict = unit_dict
         self.warm_start = warm_start
         self.low_memory = low_memory
         self.n_jobs = n_jobs
@@ -269,7 +273,8 @@ class BaseSymbolic(BaseEstimator, metaclass=ABCMeta):
                                  % type(self.transformer))
             if self._transformer.arity != 1:
                 raise ValueError('Invalid arity for `transformer`. Expected 1, got %d.' % self._transformer.arity)
-
+        if self.unit_dict is not None:
+            self.unit_dict = unit_transform(self.unit_dict)
         params = self.get_params()
         params['_metric'] = self._metric
         if hasattr(self, '_transformer'):
@@ -619,6 +624,7 @@ class SymbolicRegressor(BaseSymbolic, RegressorMixin):
                  function_set,
                  metric,
                  parsimony_coefficient,
+                 unit_dict,
                  p_crossover=0.9,
                  p_subtree_mutation=0.01,
                  p_hoist_mutation=0.01,
@@ -649,6 +655,7 @@ class SymbolicRegressor(BaseSymbolic, RegressorMixin):
             p_point_replace=p_point_replace,
             max_samples=max_samples,
             feature_names=feature_names,
+            unit_dict=unit_dict,
             warm_start=warm_start,
             low_memory=low_memory,
             n_jobs=n_jobs,

@@ -166,7 +166,7 @@ def _ts_argmax(x1, window):
 
 def _ts_argmin(x1, window):
     return x1.groupby('code', group_keys=False).rolling(window).apply(
-        np.argmin, raw=True, engine='numba').droplevel(0) +1
+        np.argmin, raw=True, engine='numba').droplevel(0) + 1
 
 
 def _ts_corr(x1, x2, window):

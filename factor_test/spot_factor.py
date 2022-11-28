@@ -4,6 +4,8 @@ from my_gplearn.my_genetic import SymbolicRegressor
 from factor_test.split_layer import split_layer
 import matplotlib.pyplot as plt
 
+unit_dict = pd.read_excel('铁矿石_单位.xls')
+
 spot = pd.read_excel('../data/spot_data/spot_data.xlsx').ffill()
 spot.set_index('date', inplace=True)
 spot.index = pd.to_datetime(spot.index)
@@ -16,12 +18,12 @@ ret = ret[spot.columns][ret.index < '20210101']
 tmr_ret = tmr_ret[spot.columns][tmr_ret.index < '20210101']
 
 train_data = pd.DataFrame({'spot': spot.stack(), 'ret': ret.stack(),
-                           'futures': futures.stack(), 'tmr_ret': tmr_ret.stack()})  #
+                           'futures': futures.stack(), 'tmr_ret': tmr_ret.stack()})
 train_data.index = train_data.index.set_names(['date', 'code'])
 gp = SymbolicRegressor(metric='ir', population_size=100, generations=10, tournament_size=20,
                        stopping_criteria=1, const_range=None, init_depth=(1, 4), p_crossover=0.8,
                        p_subtree_mutation=0.01, p_hoist_mutation=0.1, p_point_mutation=0.01, n_jobs=16, verbose=1,
-                       parsimony_coefficient=0.002, feature_names=train_data.columns[:-1],
+                       parsimony_coefficient=0.002, feature_names=train_data.columns[:-1], unit_dict=unit_dict,
                        function_set=('add', 'sub', 'mul', 'div', 'sqrt', 'log', 'abs', 'inv', 'power', 'cs_rank',
                                      'scale', 'ts_delay', 'ts_delta', 'ts_corr', 'ts_cov', 'ts_rank', 'ts_sum',
                                      'ts_prod', 'ts_std', 'ts_min', 'ts_max', 'ts_argmax', 'ts_argmin',

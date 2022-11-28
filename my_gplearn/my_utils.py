@@ -14,6 +14,53 @@ import numbers
 import numpy as np
 from joblib import cpu_count
 
+def unit_transform(unit_dict):
+    res = unit_dict.copy()
+    for index, unit in unit_dict:
+        if set('吨' '磅' '克' '盎司' '斤' 'g').intersection(set(unit)):
+            res[index] = 'weight'
+        elif set('美元' '元' '英镑' '欧元').intersection(set(unit)):
+            res[index] = 'money'
+        if set('天' '周' '月').intersection(set(unit)):
+            res[index] = 'time'
+        if set('公顷' 'm^2').intersection(set(unit)):
+            res[index] = 'area'
+        if set('桶' '包' '公升' '加仑').intersection(set(unit)):
+            res[index] = 'volume'
+        else:
+            pass
+    return res
+
+def check_unit(function, terminals, *args):
+    if function in ('cs_rank', 'ts_rank', 'argmax', 'argmin', 'ts_corr'):
+        return None
+    elif function in ('add', 'sub'):
+        if terminals[0] == terminals[1]:
+            return terminals[0]
+        else:
+            return False
+    elif function == 'mul':
+        if ('*' + terminals[0]) in terminals[1]:
+            return terminals[1] - ('*' + terminals[0])
+        elif ('*' + terminals[1]) in terminals[0]:
+            return terminals[0] - ('*' + terminals[1])
+        else:
+            return terminals[0] + '*' + terminals[1]
+    elif function == 'div':
+        if ('/' + terminals[0]) in terminals[1]:
+            return terminals[1] - ('/' + terminals[0])
+        elif ('/' + terminals[1]) in terminals[0]:
+            return terminals[0] - ('/' + terminals[1])
+        else:
+            return terminals[0] + '/' + terminals[1]
+    elif function == 'inv':
+        return '/' + terminals
+    elif function == 'ts_cov':
+        return terminals[0] + '*' + terminals[1]
+    elif function == 'power':
+        return terminals + ('*' + terminals) * (args[0] - 1)
+    else:
+        return terminals
 
 def check_random_state(seed):
     """Turn seed into a np.random.RandomState instance
