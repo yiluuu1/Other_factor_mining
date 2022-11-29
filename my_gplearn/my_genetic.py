@@ -103,6 +103,7 @@ def _evolve(n_programs, parents, X, y, seeds, params):
         indices, not_indices = program.get_all_indices(n_samples, max_samples, random_state)
 
         if not program.unit_rationality(X):
+            print(program)
             program.fitness_ = -1
         else:
             program.fitness_ = program.fitness(X, y)
@@ -111,7 +112,7 @@ def _evolve(n_programs, parents, X, y, seeds, params):
             program.oob_fitness_ = program.fitness(X.iloc[not_indices,:], y.iloc[not_indices,:])
 
         programs.append(program)
-        print(i, program, program.fitness_)
+        # print(i, program, program.fitness_)
 
     return programs
 

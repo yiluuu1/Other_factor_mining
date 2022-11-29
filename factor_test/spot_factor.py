@@ -4,7 +4,7 @@ from my_gplearn.my_genetic import SymbolicRegressor
 from factor_test.split_layer import split_layer
 import matplotlib.pyplot as plt
 
-unit_dict = pd.read_excel('铁矿石_单位.xls')
+
 
 spot = pd.read_excel('../data/spot_data/spot_data.xlsx').ffill()
 spot.set_index('date', inplace=True)
@@ -19,6 +19,7 @@ tmr_ret = tmr_ret[spot.columns][tmr_ret.index < '20210101']
 
 train_data = pd.DataFrame({'spot': spot.stack(), 'ret': ret.stack(),
                            'futures': futures.stack(), 'tmr_ret': tmr_ret.stack()})
+unit_dict = {'spot': '元/吨', 'ret': '百分比', 'futures': '元/吨', 'tmr_ret': '百分比'}
 train_data.index = train_data.index.set_names(['date', 'code'])
 gp = SymbolicRegressor(metric='ir', population_size=100, generations=10, tournament_size=20,
                        stopping_criteria=1, const_range=None, init_depth=(1, 4), p_crossover=0.8,

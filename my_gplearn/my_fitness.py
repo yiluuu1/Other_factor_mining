@@ -171,6 +171,13 @@ def _ir(ret, factor):
     return ir
 
 
+def _ic(ret, factor):
+    if sum(factor == 0) > 0.3 * len(ret):
+        return 0
+    ic = ret.corr(factor)
+    ic[np.isinf(ic) | np.isnan(ic)] = 0
+    return ic
+
 weighted_pearson = _Fitness(function=_weighted_pearson, greater_is_better=True, name='pearson')
 weighted_spearman = _Fitness(function=_weighted_spearman, greater_is_better=True, name='spearman')
 mean_absolute_error = _Fitness(function=_mean_absolute_error, greater_is_better=False, name='mean absolute error')
@@ -179,6 +186,7 @@ root_mean_square_error = _Fitness(function=_root_mean_square_error, greater_is_b
 log_loss = _Fitness(function=_log_loss, greater_is_better=False, name='log loss')
 sharpe_ratio = _Fitness(function=_sharpe_ratio, greater_is_better=True, name='sharpe ratio')
 ir = _Fitness(function=_ir, greater_is_better=True, name='ir')
+ic = _Fitness(function=_ic, greater_is_better=True, name='ic')
 
 _fitness_map = {'pearson': weighted_pearson,
                 'spearman': weighted_spearman,
@@ -187,4 +195,4 @@ _fitness_map = {'pearson': weighted_pearson,
                 'rmse': root_mean_square_error,
                 'log loss': log_loss,
                 'sharpe ratio': sharpe_ratio,
-                'ir': ir}
+                'ir': ir, 'ic':ic}

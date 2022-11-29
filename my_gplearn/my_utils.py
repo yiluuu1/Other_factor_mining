@@ -14,53 +14,104 @@ import numbers
 import numpy as np
 from joblib import cpu_count
 
+unit_map = {'weight': {'吨', '磅', '克', '斤', 'g', '重量箱'}, 'money': {'元', '英镑', '欧元'},
+            'area': {'顷', '平方', '亩'},
+            'pct': {'百分比', '%', '*', None}, 'time': {'天', '周', '月', '日'},
+            'volume': {'桶', '包', '升', '加仑', '立方'}}
+
+
 def unit_transform(unit_dict):
     res = unit_dict.copy()
-    for index, unit in unit_dict:
-        if set('吨' '磅' '克' '盎司' '斤' 'g').intersection(set(unit)):
-            res[index] = 'weight'
-        elif set('美元' '元' '英镑' '欧元').intersection(set(unit)):
-            res[index] = 'money'
-        if set('天' '周' '月').intersection(set(unit)):
-            res[index] = 'time'
-        if set('公顷' 'm^2').intersection(set(unit)):
-            res[index] = 'area'
-        if set('桶' '包' '公升' '加仑').intersection(set(unit)):
-            res[index] = 'volume'
+    for index, unit in unit_dict.items():
+        weight = len(unit_map['weight'].intersection(set(unit)))
+        volume = len(unit_map['volume'].intersection(set(unit)))
+        money = len(unit_map['money'].intersection(set(unit)))
+        time = len(unit_map['time'].intersection(set(unit)))
+        area = len(unit_map['area'].intersection(set(unit)))
+        pct = unit in unit_map['pct']
+        if '/' in unit:
+            if money > 0:
+                res[index] = 'money/' + weight * 'weight' + volume * 'volume'
+            elif area + time > 0:
+                res[index] = weight * 'weight' + volume * 'volume' + '/' + time * 'time' + area * 'area'
+            else:
+                pass
         else:
-            pass
+            if pct:
+                res[index] = None
+            elif weight + volume + area + time + money > 0:
+                res[index] = weight * 'weight' + volume * 'volume' + money * 'money' + time * 'time' + area * 'area'
+            else:
+                pass
     return res
 
+
 def check_unit(function, terminals, *args):
-    if function in ('cs_rank', 'ts_rank', 'argmax', 'argmin', 'ts_corr'):
-        return None
-    elif function in ('add', 'sub'):
-        if terminals[0] == terminals[1]:
+    try:
+        if function in ('cs_rank', 'ts_rank', 'argmax', 'argmin', 'ts_corr'):
+            return None
+        elif function in ('add', 'sub'):
+            if terminals[0] == terminals[1]:
+                return terminals[0]
+            elif terminals[0] is None:
+                return terminals[1]
+            elif terminals[1] is None:
+                return terminals[0]
+            else:
+                return 'wrong'
+        elif function == 'mul':
+            if terminals[0] is None:
+                return terminals[1]
+            elif terminals[1] is None:
+                return terminals[0]
+            elif ('/' + terminals[0]) in terminals[1]:
+                return terminals[1].replace('/' + terminals[0], '', 1)
+            elif ('/' + terminals[1]) in terminals[0]:
+                return terminals[0].replace('/' + terminals[1], '', 1)
+            else:
+                return terminals[0] + '*' + terminals[1]
+        elif function == 'div':
+            if terminals[0] is None:
+                if terminals[1] is None:
+                    return terminals[1]
+                else:
+                    return '/' + terminals[1]
+            elif terminals[1] is None:
+                return terminals[0]
+            if ('*' + terminals[0]) in terminals[1]:
+                return '/'+ terminals[1].replace('*' + terminals[0], '', 1)
+            elif ('*' + terminals[1]) in terminals[0]:
+                return terminals[0].replace('*' + terminals[1], '', 1)
+            if terminals[0] == terminals[1]:
+                return None
+            else:
+                return terminals[0] + '/' + terminals[1]
+        elif function == 'inv':
+            if '/' in terminals[0]:
+                temp = terminals[0].split('/')
+                if len(temp[0]) ==0:
+                    return temp[1]
+                else:
+                    return temp[1] + '/' + temp[0]
+            if terminals[0] is None:
+                return None
+            return '/' + terminals[0]
+        elif function == 'ts_cov':
+            if terminals[0] is None:
+                return terminals[1]
+            elif terminals[1] is None:
+                return terminals[0]
+            else:
+                return terminals[0] + '*' + terminals[1]
+        elif function == 'power':
+            return terminals + ('*' + terminals) * (args[0] - 1)
+        else:
             return terminals[0]
-        else:
-            return False
-    elif function == 'mul':
-        if ('*' + terminals[0]) in terminals[1]:
-            return terminals[1] - ('*' + terminals[0])
-        elif ('*' + terminals[1]) in terminals[0]:
-            return terminals[0] - ('*' + terminals[1])
-        else:
-            return terminals[0] + '*' + terminals[1]
-    elif function == 'div':
-        if ('/' + terminals[0]) in terminals[1]:
-            return terminals[1] - ('/' + terminals[0])
-        elif ('/' + terminals[1]) in terminals[0]:
-            return terminals[0] - ('/' + terminals[1])
-        else:
-            return terminals[0] + '/' + terminals[1]
-    elif function == 'inv':
-        return '/' + terminals
-    elif function == 'ts_cov':
-        return terminals[0] + '*' + terminals[1]
-    elif function == 'power':
-        return terminals + ('*' + terminals) * (args[0] - 1)
-    else:
-        return terminals
+    except:
+        print(function, terminals)
+
+
+
 
 def check_random_state(seed):
     """Turn seed into a np.random.RandomState instance
@@ -119,3 +170,4 @@ def preprocess(x):
         ft = ft.fillna(0)
         res[date] = ft
     return res
+

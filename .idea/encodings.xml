@@ -37,6 +37,7 @@
     <file url="file://$PROJECT_DIR$/ic_results/铝_ic_res.csv" charset="GBK" />
     <file url="file://$PROJECT_DIR$/ic_results/锌_ic_res.csv" charset="GBK" />
     <file url="file://$PROJECT_DIR$/ic_results/镍_ic_res.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/oral.csv" charset="GBK" />
     <file url="file://$PROJECT_DIR$/sample_data.csv" charset="GBK" />
     <file url="file://$PROJECT_DIR$/spot_factor.py" charset="UTF-8" />
   </component>

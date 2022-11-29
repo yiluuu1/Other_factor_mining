@@ -190,6 +190,9 @@ class _Program(object):
                     terminals.append(function.extra_param)
 
                 intermediate_result = function(*terminals)
+                if function.name == 'ts_corr':
+                    res=1
+                    print('here')
                 if len(apply_stack) != 1:
                     apply_stack.pop()
                     apply_stack[-1].append(intermediate_result)
@@ -435,8 +438,8 @@ class _Program(object):
         return program, list(mutate)
 
     def unit_rationality(self, X):
-        rationality = ['weight', 'money', 'time', 'area', 'volume',
-                       'money/weight', 'weight/time', 'weight/area']
+        rationality = ['weight', 'money', 'time', 'area', 'volume', 'price', 'money/weight', 'weight/time',
+                       'weight/area', 'money/volume', 'volume/time', 'volume/area', None]
         node = self.program[0]
         if isinstance(node, (int, float)):
             return True
@@ -457,6 +460,8 @@ class _Program(object):
                     X.columns[t]] if isinstance(t, int) else t for t in apply_stack[-1][1:]]
 
                 intermediate_result = check_unit(function, terminals, arg)
+                if intermediate_result  == 'wrong':
+                    return False
                 if len(apply_stack) != 1:
                     apply_stack.pop()
                     apply_stack[-1].append(intermediate_result)
