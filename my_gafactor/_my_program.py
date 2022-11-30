@@ -42,17 +42,6 @@ class _Program(object):
 
     def build_program(self, random_state):
         """Build an initial random program.
-
-        Parameters
-        ----------
-        random_state : RandomState instance
-            The random number generator.
-
-        Returns
-        -------
-        program : list
-            The flattened tree representation of the program.
-
         """
         if self.init_method == 'half and half':
             method = ('full' if random_state.randint(2) else 'grow')
@@ -91,7 +80,6 @@ class _Program(object):
                     terminal_stack[-1] -= 1
 
     def validate_program(self):
-        """Rough check that the embedded program in the object is valid."""
         terminals = [0]
         for node in self.program:
             if isinstance(node, _Function):
@@ -131,7 +119,6 @@ class _Program(object):
         return output
 
     def _depth(self):
-        """Calculates the maximum depth of the program tree."""
         terminals = [0]
         depth = 1
         for node in self.program:
@@ -146,26 +133,13 @@ class _Program(object):
         return depth - 1
 
     def _length(self):
-        """Calculates the number of functions and terminals in the program."""
         return len(self.program)
 
     def execute(self, X):
         """Execute the program according to X.
-
-        Parameters
-        ----------
-        X : {array-like}, shape = [n_samples, n_features]
-            Training vectors, where n_samples is the number of samples and
-            n_features is the number of features.
-
-        Returns
-        -------
-        y_hats : array-like, shape = [n_samples]
-            The gp_results of executing the program on X.
-
         """
-        # Check for single-node programs
-        node = self.program[0]
+
+        node = self.program[0]  # Check for single-node programs
         if isinstance(node, float):
             return preprocess(np.repeat(node, X.shape[0]))
         if isinstance(node, int):
@@ -190,9 +164,6 @@ class _Program(object):
                     terminals.append(function.extra_param)
 
                 intermediate_result = function(*terminals)
-                if function.name == 'ts_corr':
-                    res=1
-                    print('here')
                 if len(apply_stack) != 1:
                     apply_stack.pop()
                     apply_stack[-1].append(intermediate_result)
@@ -201,26 +172,6 @@ class _Program(object):
 
     def get_all_indices(self, n_samples=None, max_samples=None, random_state=None):
         """Get the indices on which to evaluate the fitness of a program.
-
-        Parameters
-        ----------
-        n_samples : int
-            The number of samples.
-
-        max_samples : int
-            The maximum number of samples to use.
-
-        random_state : RandomState instance
-            The random number generator.
-
-        Returns
-        -------
-        indices : array-like, shape = [n_samples]
-            The in-sample indices.
-
-        not_indices : array-like, shape = [n_samples]
-            The out-of-sample indices.
-
         """
         if self._indices_state is None and random_state is None:
             raise ValueError('The program has not been evaluated for fitness yet, indices not available.')
@@ -248,20 +199,6 @@ class _Program(object):
 
     def fitness(self, X, y):
         """Evaluate the penalized fitness of the program according to X, y.
-
-        Parameters
-        ----------
-        X : {array-like}, shape = [n_samples, n_features]
-            Training vectors, where n_samples is the number of samples and
-            n_features is the number of features.
-
-        y : array-like, shape = [n_samples]
-            Target values.
-        Returns
-        -------
-        fitness : float
-            The penalized fitness of the program.
-
         """
         # if self.transformer:
         #     y_pred = self.transformer(y_pred)
@@ -269,21 +206,6 @@ class _Program(object):
 
     def get_subtree(self, random_state, program=None):
         """Get a random subtree from the program.
-
-        Parameters
-        ----------
-        random_state : RandomState instance
-            The random number generator.
-
-        program : list, optional (default=None)
-            The flattened tree representation of the program. If None, the
-            embedded tree in the object will be used.
-
-        Returns
-        -------
-        start, end : tuple of two ints
-            The indices of the start and end of the random subtree.
-
         """
         if program is None:
             program = self.program
@@ -308,24 +230,6 @@ class _Program(object):
 
     def crossover(self, donor, random_state):
         """Perform the crossover genetic operation on the program.
-
-        Crossover selects a random subtree from the embedded program to be
-        replaced. A donor also has a subtree selected randomly and this is
-        inserted into the original parent to form an offspring.
-
-        Parameters
-        ----------
-        donor : list
-            The flattened tree representation of the donor program.
-
-        random_state : RandomState instance
-            The random number generator.
-
-        Returns
-        -------
-        program : list
-            The flattened tree representation of the program.
-
         """
         # Get a subtree to replace
         start, end = self.get_subtree(random_state)
@@ -338,24 +242,6 @@ class _Program(object):
 
     def subtree_mutation(self, random_state):
         """Perform the subtree mutation operation on the program.
-
-        Subtree mutation selects a random subtree from the embedded program to
-        be replaced. A donor subtree is generated at random and this is
-        inserted into the original parent to form an offspring.
-        This implementation uses the "headless chicken" method where the donor
-        subtree is grown using the initialization methods and a subtree of it
-        is selected to be donated to the parent.
-
-        Parameters
-        ----------
-        random_state : RandomState instance
-            The random number generator.
-
-        Returns
-        -------
-        program : list
-            The flattened tree representation of the program.
-
         """
         # Build a new naive program
         chicken = self.build_program(random_state)
@@ -364,22 +250,6 @@ class _Program(object):
 
     def hoist_mutation(self, random_state):
         """Perform the hoist mutation operation on the program.
-
-        Hoist mutation selects a random subtree from the embedded program to
-        be replaced. A random subtree of that subtree is then selected and this
-        is 'hoisted' into the original subtrees location to form an offspring.
-        This method helps to control bloat.
-
-        Parameters
-        ----------
-        random_state : RandomState instance
-            The random number generator.
-
-        Returns
-        -------
-        program : list
-            The flattened tree representation of the program.
-
         """
         # Get a subtree to replace
         start, end = self.get_subtree(random_state)
@@ -393,22 +263,6 @@ class _Program(object):
 
     def point_mutation(self, random_state):
         """Perform the point mutation operation on the program.
-
-        Point mutation selects random nodes from the embedded program to be
-        replaced. Terminals are replaced by other terminals and functions are
-        replaced by other functions that require the same number of arguments
-        as the original node. The resulting tree forms an offspring.
-
-        Parameters
-        ----------
-        random_state : RandomState instance
-            The random number generator.
-
-        Returns
-        -------
-        program : list
-            The flattened tree representation of the program.
-
         """
         program = copy(self.program)
 
@@ -438,6 +292,7 @@ class _Program(object):
         return program, list(mutate)
 
     def unit_rationality(self, X):
+        """Perform unit rationality check for every single factorof program."""
         rationality = ['weight', 'money', 'time', 'area', 'volume', 'price', 'money/weight', 'weight/time',
                        'weight/area', 'money/volume', 'volume/time', 'volume/area', None]
         node = self.program[0]
@@ -460,7 +315,7 @@ class _Program(object):
                     X.columns[t]] if isinstance(t, int) else t for t in apply_stack[-1][1:]]
 
                 intermediate_result = check_unit(function, terminals, arg)
-                if intermediate_result  == 'wrong':
+                if intermediate_result == 'wrong':
                     return False
                 if len(apply_stack) != 1:
                     apply_stack.pop()

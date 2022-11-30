@@ -14,25 +14,6 @@ __all__ = ['make_function', '_Function']
 
 
 class _Function(object):
-    """A representation of a mathematical relationship, a node in a program.
-
-    This object is able to be called with NumPy vectorized arguments and return
-    a resulting vector based on a mathematical relationship.
-
-    Parameters
-    ----------
-    function : callable
-        A function with signature function(x1, *args) that returns a Numpy
-        array of the same shape as its arguments.
-
-    name : str
-        The name for the function as it should be represented in the program
-        and its visualizations.
-
-    arity : int
-        The number of arguments that the ``function`` takes.
-
-    """
 
     def __init__(self, function, name, arity, extra_param=None):
         self.function = function
@@ -47,23 +28,16 @@ class _Function(object):
 def make_function(*, function, name, arity, extra_param):
     """Make a function node, a representation of a mathematical relationship.
 
-    This factory function creates a function node, one of the core nodes in any
-    program. The resulting object is able to be called with NumPy vectorized
-    arguments and return a resulting vector based on a mathematical
-    relationship.
+    This factory function creates a function node, one of the core nodes in any program.
 
     Parameters
     ----------
     function : callable
-        A function with signature `function(x1, *args)` that returns a Numpy
-        array of the same shape as its arguments.
-
+        A function that returns a DataFrame of the same shape as its arguments.
     name : str
-        The name for the function as it should be represented in the program
-        and its visualizations.
-
+        The name of function.
     arity : int
-        The number of arguments that the `function` takes.
+        The number of arguments that the ``function`` takes.
     extra_param: tuple
         The extra param for some function
     """
@@ -73,19 +47,16 @@ def make_function(*, function, name, arity, extra_param):
 
 
 def _protected_division(x1, x2):
-    """Closure of division (x1/x2) for zero denominator."""
     res = x1 / x2
     res[np.isinf(res)] = (res[~np.isinf(res)]).mean()
     return res
 
 
 def _protected_sqrt(x1):
-    """Closure of square root for negative arguments."""
     return np.sqrt(np.abs(x1))
 
 
 def _protected_log(x1):
-    """Closure of log for zero and negative arguments."""
     with np.errstate(divide='ignore'):
         res = np.log(abs(x1))
         res[np.isinf(res)] = (res[~np.isinf(res)]).mean()
@@ -93,12 +64,10 @@ def _protected_log(x1):
 
 
 def _protected_inverse(x1):
-    """Closure of inverse for zero arguments."""
     return _protected_division(1, x1)
 
 
 def _sigmoid(x1):
-    """Special case of logistic function to transform to probabilities."""
     return 1 / (1 + np.exp(-x1))
 
 
@@ -107,10 +76,8 @@ def _cross_sectional_rank(x1):
 
 
 def _cross_sectional_scale(x1):
-    """Scaling time serie."""
-
     def scale(ft):
-        if abs(ft).sum() != 0:
+        if abs(ft).sum() != 0 and len(ft) > 1:
             return ft.div(np.abs(ft).sum())
         else:
             return ft
@@ -177,7 +144,7 @@ def _ts_corr(x1, x2, window):
         res[window - 1:][np.isnan(res)] = 0
         return res
 
-    return pd.concat([x1, x2], axis=1).groupby('code', group_keys=False).apply(ts_corr)
+    return pd.concat([x1, x2], axis=1).groupby('code', group_keys=False).apply(ts_corr).squeeze()
 
 
 def _ts_cov(x1, x2, window):

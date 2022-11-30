@@ -5,7 +5,7 @@ from backtest.Evaluate import Evaluate
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from matplotlib.gridspec import GridSpec
-from my_gplearn.my_genetic import *
+from my_gafactor.my_genetic import *
 
 
 def recom_indicator(data):

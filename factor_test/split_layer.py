@@ -38,7 +38,6 @@ def evaluate(layer_value, hold_period):
 
 
 def split_layer(data, hold_period, layer):
-
     date = data.date.unique()
     layer_value = pd.DataFrame(np.ones((1, layer)), index=['2013-01-01'])
 

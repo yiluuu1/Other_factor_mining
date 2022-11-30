@@ -3,12 +3,6 @@
 # @Time : 2022/9/9 11:05
 # @Author : Yilu Jiang
 # @File : my_utils.py
-"""
-Most of these functions are slightly modified versions of some key utility
-functions from scikit-learn that gplearn depends upon. They reside here in
-order to maintain compatibility across different versions of scikit-learn.
-
-"""
 
 import numbers
 import numpy as np
@@ -79,7 +73,7 @@ def check_unit(function, terminals, *args):
             elif terminals[1] is None:
                 return terminals[0]
             if ('*' + terminals[0]) in terminals[1]:
-                return '/'+ terminals[1].replace('*' + terminals[0], '', 1)
+                return '/' + terminals[1].replace('*' + terminals[0], '', 1)
             elif ('*' + terminals[1]) in terminals[0]:
                 return terminals[0].replace('*' + terminals[1], '', 1)
             if terminals[0] == terminals[1]:
@@ -87,14 +81,14 @@ def check_unit(function, terminals, *args):
             else:
                 return terminals[0] + '/' + terminals[1]
         elif function == 'inv':
+            if terminals[0] is None:
+                return None
             if '/' in terminals[0]:
                 temp = terminals[0].split('/')
-                if len(temp[0]) ==0:
+                if len(temp[0]) == 0:
                     return temp[1]
                 else:
                     return temp[1] + '/' + temp[0]
-            if terminals[0] is None:
-                return None
             return '/' + terminals[0]
         elif function == 'ts_cov':
             if terminals[0] is None:
@@ -111,20 +105,7 @@ def check_unit(function, terminals, *args):
         print(function, terminals)
 
 
-
-
 def check_random_state(seed):
-    """Turn seed into a np.random.RandomState instance
-
-    Parameters
-    ----------
-    seed : None | int | instance of RandomState
-        If seed is None, return the RandomState singleton used by np.random.
-        If seed is an int, return a new RandomState instance seeded with seed.
-        If seed is already a RandomState instance, return it.
-        Otherwise, raise ValueError.
-
-    """
     if seed is None or seed is np.random:
         return np.random.mtrand._rand
     if isinstance(seed, (numbers.Integral, np.integer)):
@@ -135,8 +116,7 @@ def check_random_state(seed):
 
 
 def _partition_estimators(n_estimators, n_jobs):
-    """Private function used to partition estimators between jobs."""
-    # Compute the number of jobs
+    """Compute the number of jobs."""
     n_jobs = cpu_count() + 1 + n_jobs
 
     # Partition estimators between jobs
@@ -159,7 +139,7 @@ def preprocess(x):
     # return res
     res = x.copy()
     for date, ft in res.groupby('date', group_keys=False):
-        if np.isnan(ft).all():
+        if np.isnan(ft).all() or len(ft)==1:
             pass
         else:
             fm = ft.median()
@@ -170,4 +150,3 @@ def preprocess(x):
         ft = ft.fillna(0)
         res[date] = ft
     return res
-
